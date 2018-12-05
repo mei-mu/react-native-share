@@ -1,5 +1,6 @@
 package cl.json;
 
+import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -165,11 +166,52 @@ public class ShareFiles
                 }
             } else if(this.isLocalFile(uri)) {
                 if (uri.getPath() != null) {
-                    finalUris.add(FileProvider.getUriForFile(reactContext, authority, new File(uri.getPath())));
+                    Uri contentUri = file2Content(uri);
+                    if(contentUri != null) {
+                        finalUris.add(contentUri);
+                    }
                 }
             }
         }
 
         return finalUris;
     }
+
+    private Uri file2Content(Uri uri) {
+            if (uri.getScheme().equals("file")) {
+                String path = uri.getEncodedPath();
+                if (path != null) {
+                    path = Uri.decode(path);
+                    ContentResolver cr = this.reactContext.getContentResolver();
+                    StringBuffer buff = new StringBuffer();
+                    buff.append("(")
+                        .append(MediaStore.Images.ImageColumns.DATA)
+                        .append("=")
+                        .append("'" + path + "'")
+                        .append(")");
+                    Cursor cur = cr.query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        new String[]{MediaStore.Images.ImageColumns._ID},
+                        buff.toString(), null, null);
+                    int index = 0;
+                    for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                        index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
+                        index = cur.getInt(index);
+                    }
+                    if (index == 0) {
+                        //do nothing
+                    } else {
+                        Uri uri_temp = Uri
+                            .parse("content://media/external/images/media/"
+                                + index);
+                        if (uri_temp != null) {
+                            uri = uri_temp;
+                        }
+                    }
+                }
+            }
+            return uri;
+        }
+
 }
+
