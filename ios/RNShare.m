@@ -139,7 +139,8 @@ RCT_EXPORT_METHOD(open:(NSDictionary *)options
     for (int i=0; i<urlsArray.count; i++) {
         NSURL *URL = [RCTConvert NSURL:urlsArray[i]];
         if (URL) {
-            if ([URL.scheme.lowercaseString isEqualToString:@"data"]) {
+            // 微信多图需要走NSData才OK
+            if ([URL.scheme.lowercaseString isEqualToString:@"data"] || true) {
                 NSError *error;
                 NSData *data = [NSData dataWithContentsOfURL:URL
                                                      options:(NSDataReadingOptions)0
@@ -171,6 +172,9 @@ RCT_EXPORT_METHOD(open:(NSDictionary *)options
     NSArray *excludedActivityTypes = [RCTConvert NSStringArray:options[@"excludedActivityTypes"]];
     if (excludedActivityTypes) {
         shareController.excludedActivityTypes = excludedActivityTypes;
+    } else {
+        //去除特定的分享功能
+    shareController.excludedActivityTypes = @[UIActivityTypePostToFacebook,UIActivityTypePostToTwitter, UIActivityTypePostToWeibo,UIActivityTypeMessage,UIActivityTypeMail,UIActivityTypePrint,UIActivityTypeCopyToPasteboard,UIActivityTypeAssignToContact,UIActivityTypeSaveToCameraRoll,UIActivityTypeAddToReadingList,UIActivityTypePostToFlickr,UIActivityTypePostToVimeo,UIActivityTypePostToTencentWeibo,UIActivityTypeAirDrop,UIActivityTypeOpenInIBooks];
     }
 
     UIViewController *controller = RCTPresentedViewController();
