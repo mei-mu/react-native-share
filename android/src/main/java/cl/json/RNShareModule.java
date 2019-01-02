@@ -1,30 +1,29 @@
 package cl.json;
 
-import android.content.Intent;
 import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.Callback;
 
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import cl.json.social.EmailShare;
-import cl.json.social.FacebookShare;
 import cl.json.social.FacebookPagesManagerShare;
+import cl.json.social.FacebookShare;
 import cl.json.social.GenericShare;
 import cl.json.social.GooglePlusShare;
-import cl.json.social.ShareIntent;
-import cl.json.social.TwitterShare;
-import cl.json.social.WhatsAppShare;
 import cl.json.social.InstagramShare;
 import cl.json.social.PinterestShare;
+import cl.json.social.ShareIntent;
+import cl.json.social.TwitterShare;
+import cl.json.social.WechatShare;
+import cl.json.social.WhatsAppShare;
 
 public class RNShareModule extends ReactContextBaseJavaModule {
 
@@ -38,7 +37,8 @@ public class RNShareModule extends ReactContextBaseJavaModule {
         instagram,
         googleplus,
         email,
-        pinterest;
+        pinterest,
+        wechat;
 
         public static ShareIntent getShareClass(String social, ReactApplicationContext reactContext) {
             SHARES share = valueOf(social);
@@ -61,6 +61,8 @@ public class RNShareModule extends ReactContextBaseJavaModule {
                     return new EmailShare(reactContext);
                 case pinterest:
                     return new PinterestShare(reactContext);
+                case wechat:
+                    return new WechatShare(reactContext);
                 default:
                     return null;
             }
@@ -74,7 +76,7 @@ public class RNShareModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName() {
-    return "RNShare";
+        return "RNShare";
     }
 
     @javax.annotation.Nullable
