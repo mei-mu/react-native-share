@@ -156,6 +156,7 @@ class RNShare {
     GOOGLEPLUS: NativeModules.RNShare.GOOGLEPLUS || 'googleplus',
     EMAIL: NativeModules.RNShare.EMAIL || 'email',
     PINTEREST: NativeModules.RNShare.PINTEREST || 'pinterest',
+    WECHAT: NativeModules.RNShare.WECHAT || 'wechat',
   };
 
   static open(options: Options | MultipleOptions): Promise<OpenReturn> {
