@@ -3,12 +3,9 @@ package cl.json.social;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.net.Uri;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
-
-import java.util.ArrayList;
 
 import cl.json.ShareFiles;
 
@@ -29,7 +26,7 @@ public class WechatShare extends SingleShareIntent {
     // 打开系统分享弹框
     // this.openIntentChooser();
     // 绕过系统分享，直接分享对话
-    this.openWechatShare();
+    this.openWechatShare(options);
   }
 
   @Override
@@ -47,16 +44,27 @@ public class WechatShare extends SingleShareIntent {
     return PLAY_STORE_LINK;
   }
 
-  private void openWechatShare() {
+  private void openWechatShare(ReadableMap options) {
     Intent intent = new Intent();
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    intent.setComponent(new ComponentName(PACKAGE, SHARE_TO_SESSTION));
-    intent.setAction("android.intent.action.SEND_MULTIPLE");
-    intent.setType("image/*");
-    ShareFiles shareFiles = this.getFileShares(this.options);
-    if (shareFiles != null) {
-      intent.putExtra(Intent.EXTRA_STREAM, shareFiles.getURI());
-      this.reactContext.startActivity(intent);
+    if (options.getBoolean("isTimeLine")) {
+      intent.setComponent(new ComponentName(PACKAGE, SHARE_TO_TIMELINE));
+    }else {
+      intent.setComponent(new ComponentName(PACKAGE, SHARE_TO_SESSTION));
     }
+    if (options.getString("type").contains("image")) {
+      intent.setAction("android.intent.action.SEND_MULTIPLE");
+      intent.setType("image/*");
+      ShareFiles shareFiles = this.getFileShares(this.options);
+      if (shareFiles != null) {
+        intent.putExtra(Intent.EXTRA_STREAM, shareFiles.getURI());
+      }
+    } else {
+      intent.setAction(Intent.ACTION_SEND);
+      intent.setType(options.getString("type"));
+      intent.putExtra(Intent.EXTRA_TEXT, options.getString("message"));
+      intent.putExtra("Kdescription", options.getString("message"));
+    }
+    this.reactContext.startActivity(intent);
   }
 }
