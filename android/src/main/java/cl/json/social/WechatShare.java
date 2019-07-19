@@ -47,24 +47,32 @@ public class WechatShare extends SingleShareIntent {
   private void openWechatShare(ReadableMap options) {
     Intent intent = new Intent();
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    if (options.getBoolean("isTimeLine")) {
+    if (options.hasKey("isTimeLine") && options.getBoolean("isTimeLine")) {
       intent.setComponent(new ComponentName(PACKAGE, SHARE_TO_TIMELINE));
-    }else {
+    } else {
       intent.setComponent(new ComponentName(PACKAGE, SHARE_TO_SESSTION));
     }
     if (options.getString("type").contains("image")) {
-      intent.setAction("android.intent.action.SEND_MULTIPLE");
       intent.setType("image/*");
       ShareFiles shareFiles = this.getFileShares(this.options);
-      if (shareFiles != null) {
-        intent.putExtra(Intent.EXTRA_STREAM, shareFiles.getURI());
+      if(options.hasKey("isTimeLine") && options.getBoolean("isTimeLine")){
+        intent.setAction(Intent.ACTION_SEND);
+        if (shareFiles != null) {
+          intent.putExtra(Intent.EXTRA_STREAM, shareFiles.getURI().get(0));
+        }
+      }else {
+        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        if (shareFiles != null) {
+          intent.putExtra(Intent.EXTRA_STREAM, shareFiles.getURI());
+        }
       }
     } else {
       intent.setAction(Intent.ACTION_SEND);
       intent.setType(options.getString("type"));
-      intent.putExtra(Intent.EXTRA_TEXT, options.getString("message"));
-      intent.putExtra("Kdescription", options.getString("message"));
     }
+    intent.putExtra(Intent.EXTRA_SUBJECT, options.hasKey("title") ? options.getString("title") : "");
+    intent.putExtra(Intent.EXTRA_TEXT, options.hasKey("message") ? options.getString("message") : "");
+    intent.putExtra("Kdescription", options.hasKey("message") ? options.getString("message") : "");
     this.reactContext.startActivity(intent);
   }
 }
